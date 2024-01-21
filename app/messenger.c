@@ -46,7 +46,7 @@ unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
 char lastcMessage[TX_MSG_LENGTH];
-char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
+char rxMessage[24][MAX_RX_MSG_LENGTH + 2];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
@@ -601,7 +601,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		msgStatus = READY;
 
 	} else {
-		// AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 	}
 }
 
@@ -829,7 +829,7 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				MSG_Init();
 				break;
 			default:
-				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+				// AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				break;
 		}
 	}

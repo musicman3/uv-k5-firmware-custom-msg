@@ -58,7 +58,7 @@ void UI_DisplayMSG(void) {
 
 	// TX Screen
 
-	UI_DrawDottedLineBuffer(gFrameBuffer, 14, 40, 126, 40, true, 4);
+	// UI_DrawDottedLineBuffer(gFrameBuffer, 14, 40, 126, 40, true, 4);
 	memset(String, 0, sizeof(String));
 	if ( keyboardType == NUMERIC ) {
 		strcpy(String, "2");
@@ -68,8 +68,8 @@ void UI_DisplayMSG(void) {
 		strcpy(String, "b");
 	}
 
-	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
-	GUI_DisplaySmallest(String, 5, 38, false, true);
+	UI_DrawRectangleBuffer(gFrameBuffer, 118, 36, 126, 44, true);
+	GUI_DisplaySmallest(String, 120, 38, false, true);
 	#ifdef ENABLE_DOCK
 		UART_SendUiElement(2, 5, (32 / 6), 4, strlen(String), String);
 	#endif

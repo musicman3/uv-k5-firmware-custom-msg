@@ -26,7 +26,7 @@ enum {
 extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;
 extern char cMessage[TX_MSG_LENGTH];
-extern char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
+extern char rxMessage[24][MAX_RX_MSG_LENGTH + 2];
 extern uint8_t hasNewMessage;
 extern uint8_t keyTickCounter;
 
