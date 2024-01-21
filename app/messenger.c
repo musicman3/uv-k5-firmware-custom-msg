@@ -46,7 +46,7 @@ unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
 char lastcMessage[TX_MSG_LENGTH];
-char rxMessage[24][MAX_RX_MSG_LENGTH + 2];
+char rxMessage[24][MAX_RX_MSG_LENGTH + 3];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
@@ -529,7 +529,7 @@ void MSG_EnableRX(const bool enable) {
 
 // -----------------------------------------------------
 
-void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 2]) {
+void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 3]) {
     // Shift existing lines up
     strcpy(rxMessages[0], rxMessages[1]);
 	strcpy(rxMessages[1], rxMessages[2]);
@@ -590,7 +590,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		MSG_EnableRX(true);
 		if (!bServiceMessage) {
 			moveUP(rxMessage);
-			sprintf(rxMessage[3], "> %s", txMessage);
+			sprintf(rxMessage[3], "<- %s", txMessage);
 			memset(lastcMessage, 0, sizeof(lastcMessage));
 			memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
 			cIndex = 0;
@@ -667,11 +667,11 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			} else {
 				moveUP(rxMessage);
 				if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-					snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "? unknown msg format!");
+					snprintf(rxMessage[3], TX_MSG_LENGTH + 3, "? unknown msg format!");
 				}
 				else
 				{
-					snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "< %s", &msgFSKBuffer[2]);
+					snprintf(rxMessage[3], TX_MSG_LENGTH + 3, "-> %s", &msgFSKBuffer[2]);
 				}
 
 			#ifdef ENABLE_MESSENGER_UART
