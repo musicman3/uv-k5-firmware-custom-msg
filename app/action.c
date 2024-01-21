@@ -67,7 +67,7 @@ void (*action_opt_table[])(void) = {
 	[ACTION_OPT_SWITCH_DEMODUL] = &ACTION_SwitchDemodul,
 
 #ifdef ENABLE_MESSENGER
-    [ACTION_OPT_MESSENGER] = &ACTION_Messenger,
+    [ACTION_OPT_MSG] = &ACTION_Messenger,
 #endif
 
 #ifdef ENABLE_FLASHLIGHT
