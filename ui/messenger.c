@@ -26,10 +26,13 @@ void UI_DisplayMSG(void) {
 	memset(String, 0, sizeof(String));
 
 	//UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
-	UI_PrintStringSmallNormal("Messenger", 1, 127, 0);
+	// UI_PrintStringSmallNormal("Messenger", 1, 127, 0);
+    strcpy(String, "Messenger");
+    GUI_DisplaySmallest(String, 128-1-36, 2, false, true);
 
-	UI_DrawDottedLineBuffer(gFrameBuffer, 2, 3, 26, 3, true, 2);
-	UI_DrawDottedLineBuffer(gFrameBuffer, 100, 3, 126, 3, true, 2);
+
+	// UI_DrawDottedLineBuffer(gFrameBuffer, 2, 3, 26, 3, true, 2);
+	// UI_DrawDottedLineBuffer(gFrameBuffer, 100, 3, 126, 3, true, 2);
 
 	/*if ( msgStatus == SENDING ) {
 		GUI_DisplaySmallest("SENDING", 100, 6, false, true);
@@ -45,20 +48,37 @@ void UI_DisplayMSG(void) {
 
 	memset(String, 0, sizeof(String));
 
-	uint8_t mPos = 8;
+	uint8_t mPos = 1;
 	const uint8_t mLine = 7;
-	for (int i = 0; i < 4; ++i) {
+
+    for (int i = 0; i < DISPLAY_MSG_COUNT; ++i) {
 		//sprintf(String, "%s", rxMessage[i]);
-		GUI_DisplaySmallest(rxMessage[i], 2, mPos, false, true);
+        uint8_t currIdx=currDisplayMsgID+(DISPLAY_MSG_COUNT-i-1);
+		GUI_DisplaySmallest(rxMessage[currIdx], 2, mPos, false, true);
 		#ifdef ENABLE_DOCK
-			UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[i]), rxMessage[i]);
+			UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[currIdx]), rxMessage[currIdx]);
 		#endif
 		mPos += mLine;
     }
 
+
+	// for (int i = 0; i < 4; ++i) {
+	// 	//sprintf(String, "%s", rxMessage[i]);
+	// 	GUI_DisplaySmallest(rxMessage[i], 2, mPos, false, true);
+	// 	#ifdef ENABLE_DOCK
+	// 		UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[i]), rxMessage[i]);
+	// 	#endif
+	// 	mPos += mLine;
+    // }
+
 	// TX Screen
 
-	// UI_DrawDottedLineBuffer(gFrameBuffer, 14, 40, 126, 40, true, 4);
+    memset(String, 0, sizeof(String));
+    strcpy(String, "Input");
+    UI_DrawDottedLineBuffer(gFrameBuffer, 2, 44, 94, 44, true, 2);
+    GUI_DisplaySmallest(String, 98, 42, false, true);
+    
+
 	memset(String, 0, sizeof(String));
 	if ( keyboardType == NUMERIC ) {
 		strcpy(String, "2");
@@ -68,8 +88,8 @@ void UI_DisplayMSG(void) {
 		strcpy(String, "b");
 	}
 
-	UI_DrawRectangleBuffer(gFrameBuffer, 118, 46, 126, 54, true);
-	GUI_DisplaySmallest(String, 121, 48, false, true);
+	UI_DrawRectangleBuffer(gFrameBuffer, 119, 40, 125, 48, true);
+	GUI_DisplaySmallest(String, 121, 42, false, true);
 	#ifdef ENABLE_DOCK
 		UART_SendUiElement(2, 5, (32 / 6), 4, strlen(String), String);
 	#endif

@@ -46,7 +46,7 @@ unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
 char lastcMessage[TX_MSG_LENGTH];
-char rxMessage[24][MAX_RX_MSG_LENGTH + 3];
+char rxMessage[MAX_MSG_STORED][MAX_RX_MSG_LENGTH + 3];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
@@ -60,6 +60,10 @@ uint16_t gErrorsDuringMSG;
 uint8_t hasNewMessage = 0;
 
 uint8_t keyTickCounter = 0;
+
+uint8_t currDisplayMsgID = 0;
+
+uint8_t totalMsgsReceived = 0;
 
 // -----------------------------------------------------
 
@@ -530,13 +534,12 @@ void MSG_EnableRX(const bool enable) {
 // -----------------------------------------------------
 
 void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 3]) {
-    // Shift existing lines up
-    strcpy(rxMessages[0], rxMessages[1]);
-	strcpy(rxMessages[1], rxMessages[2]);
-	strcpy(rxMessages[2], rxMessages[3]);
 
-    // Insert the new line at the last position
-	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
+    for (int i = MAX_MSG_STORED - 1; i > 0; i--) {
+        strcpy(rxMessages[i], rxMessages[i - 1]);
+    }
+    memset(rxMessages[0], 0, sizeof(rxMessages[0]));
+
 }
 
 void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
@@ -568,12 +571,23 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		msgFSKBuffer[MAX_RX_MSG_LENGTH + 2] = '0';
 		msgFSKBuffer[(MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) - 1] = '#';
 
+        if (!bServiceMessage) {
+			moveUP(rxMessage);
+			sprintf(rxMessage[0], "<: %s", txMessage);
+			memset(lastcMessage, 0, sizeof(lastcMessage));
+			memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
+			cIndex = 0;
+			prevKey = 0;
+			prevLetter = 0;
+			memset(cMessage, 0, sizeof(cMessage));
+		}
+
 		BK4819_DisableDTMF();
 
 		//RADIO_SetTxParameters();
 		FUNCTION_Select(FUNCTION_TRANSMIT);
 		//SYSTEM_DelayMs(500);
-		BK4819_PlayRogerNormal(1);
+		BK4819_PlayRogerNormal(2); // Activate Receiver
 		SYSTEM_DelayMs(100);
 
 		BK4819_ExitTxMute();
@@ -588,16 +602,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
 		MSG_EnableRX(true);
-		if (!bServiceMessage) {
-			moveUP(rxMessage);
-			sprintf(rxMessage[3], "<: %s", txMessage);
-			memset(lastcMessage, 0, sizeof(lastcMessage));
-			memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
-			cIndex = 0;
-			prevKey = 0;
-			prevLetter = 0;
-			memset(cMessage, 0, sizeof(cMessage));
-		}
+		
 		msgStatus = READY;
 
 	} else {
@@ -659,7 +664,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				// If the next 4 bytes are "RCVD", then it's a delivery notification
 				if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D') {
 					UART_printf("SVC<RCPT\r\n");
-					rxMessage[3][1] = '-';
+					rxMessage[0][1] = '-';
 					gUpdateStatus = true;
 					gUpdateDisplay = true;
 				}
@@ -667,11 +672,11 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			} else {
 				moveUP(rxMessage);
 				if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-					snprintf(rxMessage[3], TX_MSG_LENGTH + 3, "? unknown msg format!");
+					snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "?> Err Rx");
 				}
 				else
 				{
-					snprintf(rxMessage[3], TX_MSG_LENGTH + 3, "-> %s", &msgFSKBuffer[2]);
+					snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "-> %s", &msgFSKBuffer[2]);
 				}
 
 			#ifdef ENABLE_MESSENGER_UART
@@ -695,6 +700,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		gFSKWriteIndex = 0;
 		// Transmit a message to the sender that we have received the message (Unless it's a service message)
 		if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b) {
+            SYSTEM_DelayMs(200);
 			MSG_Send("\x1b\x1b\x1bRCVD", true);
 		}
 	}
