@@ -1307,8 +1307,12 @@ void APP_TimeSlice500ms(void)
 	if (hasNewMessage > 0) {
 		if (hasNewMessage == 1) {
 			hasNewMessage = 2;
+            BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
+            BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 		} else if (hasNewMessage == 2) {
 			hasNewMessage = 1;
+            BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, true);
+            BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 		}
 	}
 #endif

@@ -36,6 +36,8 @@ extern uint8_t hasNewMessage;
 extern uint8_t keyTickCounter;
 extern uint8_t currDisplayMsgID;
 extern uint8_t totalMsgsReceived;
+extern bool canScrollUp;
+extern bool canScrollDown;
 
 void MSG_EnableRX(const bool enable);
 void MSG_StorePacket(const uint16_t interrupt_bits);
