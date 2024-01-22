@@ -91,15 +91,15 @@ void UI_DisplayMSG(void) {
 	UI_DrawRectangleBuffer(gFrameBuffer, 119, 40, 125, 48, true);
 	GUI_DisplaySmallest(String, 121, 42, false, true);
 	#ifdef ENABLE_DOCK
-		UART_SendUiElement(2, 5, (32 / 6), 4, strlen(String), String);
+		UART_SendUiElement(121, 42, (32 / 6), 4, strlen(String), String);
 	#endif
 
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);
 	//UI_PrintStringSmall(String, 3, 0, 6);
-	GUI_DisplaySmallest(String, 5, 48, false, true);
+	GUI_DisplaySmallest(String, 2, 48, false, true);
 	#ifdef ENABLE_DOCK
-		UART_SendUiElement(2, 5, (38 / 6), 4, strlen(String), String);
+		UART_SendUiElement(2, 2, (38 / 6), 4, strlen(String), String);
 	#endif
 
 

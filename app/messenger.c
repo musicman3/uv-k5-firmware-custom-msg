@@ -814,7 +814,8 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				break;
 			/*case KEY_DOWN:
 				break;*/
-			case KEY_MENU:
+            case KEY_MENU:
+			case KEY_PTT:
 				// Send message
 				MSG_Send(cMessage, false);
 				break;
