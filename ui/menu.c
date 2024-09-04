@@ -50,11 +50,11 @@ const t_menu_item MenuList[] =
 	{"TxCTCS", VOICE_ID_CTCSS,                         MENU_T_CTCS        }, // was "T_CTCS"
 	{"TxODir", VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
 	{"TxOffs", VOICE_ID_TX_OFFSET_FREQUENCY,           MENU_OFFSET        }, // was "OFFSET"
-	{"Bandwi", VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
-	{"Scramb", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
+	{"W/N", VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
+	{"SCRMB", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
 	{"BusyCL", VOICE_ID_BUSY_LOCKOUT,                  MENU_BCL           }, // was "BCL"
 	{"Compnd", VOICE_ID_INVALID,                       MENU_COMPAND       },
-	{"Demodu", VOICE_ID_INVALID,                       MENU_AM            }, // was "AM"
+	{"Demod", VOICE_ID_INVALID,                       MENU_AM            }, // was "AM"
 	{"ScAdd1", VOICE_ID_INVALID,                       MENU_S_ADD1        },
 	{"ScAdd2", VOICE_ID_INVALID,                       MENU_S_ADD2        },
 	{"ChSave", VOICE_ID_MEMORY_CHANNEL,                MENU_MEM_CH        }, // was "MEM-CH"
@@ -72,7 +72,7 @@ const t_menu_item MenuList[] =
 	{"F1Long",    VOICE_ID_INVALID,                    MENU_F1LONG        },
 	{"F2Shrt",    VOICE_ID_INVALID,                    MENU_F2SHRT        },
 	{"F2Long",    VOICE_ID_INVALID,                    MENU_F2LONG        },
-	{"M Long",    VOICE_ID_INVALID,                    MENU_MLONG         },
+	{"MLong",    VOICE_ID_INVALID,                    MENU_MLONG         },
 
 	{"KeyLck", VOICE_ID_INVALID,                       MENU_AUTOLK        }, // was "AUTOLk"
 	{"TxTOut", VOICE_ID_TRANSMIT_OVER_TIME,            MENU_TOT           }, // was "TOT"
@@ -97,10 +97,10 @@ const t_menu_item MenuList[] =
 #endif
 	{"Roger",  VOICE_ID_INVALID,                       MENU_ROGER         },
 	{"STE",    VOICE_ID_INVALID,                       MENU_STE           },
-	{"RP STE", VOICE_ID_INVALID,                       MENU_RP_STE        },
-	{"1 Call", VOICE_ID_INVALID,                       MENU_1_CALL        },
+	{"RPSTE", VOICE_ID_INVALID,                       MENU_RP_STE        },
+	{"1Call", VOICE_ID_INVALID,                       MENU_1_CALL        },
 #ifdef ENABLE_ALARM
-	{"AlarmT", VOICE_ID_INVALID,                       MENU_AL_MOD        },
+	{"Alarm", VOICE_ID_INVALID,                       MENU_AL_MOD        },
 #endif
 #ifdef ENABLE_DTMF_CALLING
 	{"ANI ID", VOICE_ID_ANI_CODE,                      MENU_ANI_ID        },
@@ -134,12 +134,12 @@ const t_menu_item MenuList[] =
 
 	// hidden menu items from here on
 	// enabled if pressing both the PTT and upper side button at power-on
-	{"F Lock", VOICE_ID_INVALID,                       MENU_F_LOCK        },
-	{"Tx 200", VOICE_ID_INVALID,                       MENU_200TX         }, // was "200TX"
-	{"Tx 350", VOICE_ID_INVALID,                       MENU_350TX         }, // was "350TX"
-	{"Tx 500", VOICE_ID_INVALID,                       MENU_500TX         }, // was "500TX"
-	{"350 En", VOICE_ID_INVALID,                       MENU_350EN         }, // was "350EN"
-	{"ScraEn", VOICE_ID_INVALID,                       MENU_SCREN         }, // was "SCREN"
+	{"FLock", VOICE_ID_INVALID,                       MENU_F_LOCK        },
+	{"Tx200", VOICE_ID_INVALID,                       MENU_200TX         }, // was "200TX"
+	{"Tx350", VOICE_ID_INVALID,                       MENU_350TX         }, // was "350TX"
+	{"Tx500", VOICE_ID_INVALID,                       MENU_500TX         }, // was "500TX"
+	{"350En", VOICE_ID_INVALID,                       MENU_350EN         }, // was "350EN"
+	{"ScrEn", VOICE_ID_INVALID,                       MENU_SCREN         }, // was "SCREN"
 #ifdef ENABLE_F_CAL_MENU
 	{"FrCali", VOICE_ID_INVALID,                       MENU_F_CALI        }, // reference xtal calibration
 #endif
@@ -190,17 +190,17 @@ const char gSubMenu_SAVE[][4] =
 
 const char gSubMenu_TOT[][7] =
 {
-	"30 sec",
-	"1 min",
-	"2 min",
-	"3 min",
-	"4 min",
-	"5 min",
-	"6 min",
-	"7 min",
-	"8 min",
-	"9 min",
-	"15 min"
+	"30 s",
+	"1 m",
+	"2 m",
+	"3 m",
+	"4 m",
+	"5 m",
+	"6 m",
+	"7 m",
+	"8 m",
+	"9 m",
+	"15 m"
 };
 
 const char gSubMenu_RXMode[][17] =
@@ -304,12 +304,12 @@ const char gSubMenu_F_LOCK[][27] =
 const char gSubMenu_BACKLIGHT[][7] =
 {
 	"OFF",
-	"5 sec",
-	"10 sec",
-	"20 sec",
-	"1 min",
-	"2 min",
-	"4 min",
+	"5 s",
+	"10 s",
+	"20 s",
+	"1 m",
+	"2 m",
+	"4 m",
 	"ON"
 };
 
@@ -990,7 +990,7 @@ void UI_DisplayMenu(void)
 	     UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME ||
 	     UI_MENU_GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
-		char *pPrintStr = (gAskForConfirmation == 1) ? "SURE?" : "WAIT!";
+		char *pPrintStr = (gAskForConfirmation == 1) ? "YES?" : "WAIT!";
 		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 5, 8);
 	}
 
