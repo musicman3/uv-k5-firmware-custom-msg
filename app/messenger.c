@@ -14,6 +14,7 @@
 #include "radio.h"
 #include "settings.h"
 #include "ui/ui.h"
+#include "common.h"
 #include <string.h>
 
 #if defined(ENABLE_UART)
@@ -26,20 +27,15 @@ typedef enum MsgStatus {
     RECEIVING,
 } MsgStatus;
 
-const uint8_t MSG_BUTTON_STATE_HELD = 1 << 1;
-
-const uint8_t MSG_BUTTON_EVENT_SHORT = 0;
-const uint8_t MSG_BUTTON_EVENT_LONG = MSG_BUTTON_STATE_HELD;
-
 const uint8_t MAX_MSG_LENGTH = TX_MSG_LENGTH - 1;
 
 const uint16_t TONE2_FREQ = 0x3065; // 0x2854
 
 #define NEXT_CHAR_DELAY 100 // 10ms tick
 
-char T9TableLow[9][4] = {{',', '.', '?', '!'}, {'a', 'b', 'c', '\0'}, {'d', 'e', 'f', '\0'}, {'g', 'h', 'i', '\0'}, {'j', 'k', 'l', '\0'}, {'m', 'n', 'o', '\0'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '\0'}, {'w', 'x', 'y', 'z'}};
-char T9TableUp[9][4] = {{',', '.', '?', '!'}, {'A', 'B', 'C', '\0'}, {'D', 'E', 'F', '\0'}, {'G', 'H', 'I', '\0'}, {'J', 'K', 'L', '\0'}, {'M', 'N', 'O', '\0'}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '\0'}, {'W', 'X', 'Y', 'Z'}};
-unsigned char numberOfLettersAssignedToKey[9] = {4, 3, 3, 3, 3, 3, 4, 3, 4};
+char T9TableLow[9][4] = {{',', '.', '?', '!'}, {'a', 'b', 'c', '-'}, {'d', 'e', 'f', '+'}, {'g', 'h', 'i', '*'}, {'j', 'k', 'l', '/'}, {'m', 'n', 'o', '='}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '%'}, {'w', 'x', 'y', 'z'}};
+char T9TableUp[9][4] = {{',', '.', '?', '!'}, {'A', 'B', 'C', '-'}, {'D', 'E', 'F', '+'}, {'G', 'H', 'I', '*'}, {'J', 'K', 'L', '/'}, {'M', 'N', 'O', '='}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '%'}, {'W', 'X', 'Y', 'Z'}};
+unsigned char numberOfLettersAssignedToKey[9] = {4, 4, 4, 4, 4, 4, 4, 4, 4};
 
 char T9TableNum[9][4] = {{'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3', '\0', '\0', '\0'}, {'4', '\0', '\0', '\0'}, {'5', '\0', '\0', '\0'}, {'6', '\0', '\0', '\0'}, {'7', '\0', '\0', '\0'}, {'8', '\0', '\0', '\0'}, {'9', '\0', '\0', '\0'}};
 unsigned char numberOfNumsAssignedToKey[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
@@ -674,7 +670,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 #ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
                 // If the next 4 bytes are "RCVD", then it's a delivery notification
                 if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D') {
-                    UART_printf("SVC<RCPT\r\n");
+                    UART_printf("SVC<RCPT\n");
                     rxMessage[0][1] = '-';
                     gUpdateStatus = true;
                     gUpdateDisplay = true;
@@ -687,11 +683,10 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
                     snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "?> Err Rx");
                 } else {
                     snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "-> %s", &msgFSKBuffer[2]);
-                }
-
-#ifdef ENABLE_MESSENGER_UART
-                UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
-#endif
+                #ifdef ENABLE_MESSENGER_UART
+					UART_printf("SMS%s\n", rxMessage[3]);
+					#endif
+				}	
 
                 if (gScreenToDisplay != DISPLAY_MSG) {
                     hasNewMessage = 1;
@@ -707,11 +702,13 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
         }
 
         gFSKWriteIndex = 0;
+        #ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION	
         // Transmit a message to the sender that we have received the message (Unless it's a service message)
         if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b) {
             SYSTEM_DelayMs(200);
-            MSG_Send("\x1b\x1b\x1bRCVD", true);
+            MSG_Send("\x1b\x1b\x1b<<RCVD>>                  ", true);
         }
+        #endif
     }
 }
 
@@ -784,9 +781,23 @@ void processBackspace() {
 }
 
 void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
-    uint8_t state = bKeyPressed + 2 * bKeyHeld;
 
-    if (state == MSG_BUTTON_EVENT_SHORT) {
+    if (bKeyPressed && bKeyHeld) {
+		switch (Key)
+		{
+			case KEY_F:
+				if (gEeprom.KEY_LOCK && gKeypadLocked > 0) {
+		 			COMMON_KeypadLockToggle();
+				} else {
+					MSG_Init();
+				}
+				break;
+			default:
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+				break;
+		}
+
+	} else if (bKeyPressed && !bKeyHeld) {
 
         switch (Key) {
         case KEY_0:
@@ -836,21 +847,6 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
             break;
         }
 
-    } else if (state == MSG_BUTTON_EVENT_LONG) {
-
-        switch (Key) {
-        case KEY_F:
-            MSG_Init();
-            break;
-        case KEY_UP:
-            memset(cMessage, 0, sizeof(cMessage));
-            memcpy(cMessage, lastcMessage, TX_MSG_LENGTH);
-            cIndex = strlen(cMessage);
-            break;
-        default:
-            // AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-            break;
-        }
     }
 }
 
