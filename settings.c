@@ -20,9 +20,6 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-#ifdef ENABLE_PMR_MODE
-	#include "app/pmr.h"
-#endif
 #include "driver/bk1080.h"
 #include "driver/bk4819.h"
 #include "driver/eeprom.h"
@@ -41,16 +38,6 @@ static const uint32_t gDefaultFrequencyTable[] =
 
 EEPROM_Config_t gEeprom = { 0 };
 
-#ifdef ENABLE_PMR_MODE
-void SETTINGS_SavePMR() {
-	uint8_t Data[8] = {0};
-	EEPROM_ReadBuffer(0x0E70, Data, 8);
-	Data[3] = 0xFF;
-	if (!gPMR_Mode_Active) Data[3] &= ~(1u << 7);
-	EEPROM_WriteBuffer(0x0E70, Data);
-}
-#endif
-
 void SETTINGS_InitEEPROM(void)
 {
 	uint8_t Data[16] = {0};
@@ -60,14 +47,8 @@ void SETTINGS_InitEEPROM(void)
 	gEeprom.SQUELCH_LEVEL        = (Data[1] < 10) ? Data[1] : 1;
 	gEeprom.TX_TIMEOUT_TIMER     = (Data[2] < 11) ? Data[2] : 1;
 	#ifdef ENABLE_NOAA
-		//gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
-		gEeprom.NOAA_AUTO_SCAN  = !!(Data[3] & (1u << 1));
+		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
 	#endif
-
-	#ifdef ENABLE_PMR_MODE
-		gPMR_Mode_Active        = !!(Data[3] & (1u << 7));
-	#endif
-
 	gEeprom.KEY_LOCK             = (Data[4] <  2) ? Data[4] : false;
 	#ifdef ENABLE_VOX
 		gEeprom.VOX_SWITCH       = (Data[5] <  2) ? Data[5] : false;
@@ -87,15 +68,8 @@ void SETTINGS_InitEEPROM(void)
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
 	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
 	gEeprom.BACKLIGHT_TIME        = (Data[5] < ARRAY_SIZE(gSubMenu_BACKLIGHT)) ? Data[5] : 3;
-
-	//gEeprom.TAIL_TONE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
+	gEeprom.TAIL_TONE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
 	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
-
-	gEeprom.TAIL_TONE_ELIMINATION = (Data[6] >> 7) & 1;
-
-#ifdef ENABLE_CONTRAST
-	gEeprom.LCD_CONTRAST		  = Data[6] & 0x7F;
-#endif
 
 	// 0E80..0E87
 	EEPROM_ReadBuffer(0x0E80, Data, 8);
@@ -186,8 +160,8 @@ void SETTINGS_InitEEPROM(void)
 #ifdef ENABLE_DTMF_CALLING
 	gEeprom.DTMF_SEPARATE_CODE           = DTMF_ValidateCodes((char *)(Data + 1), 1) ? Data[1] : '*';
 	gEeprom.DTMF_GROUP_CALL_CODE         = DTMF_ValidateCodes((char *)(Data + 2), 1) ? Data[2] : '#';
-	gEeprom.DTMF_DECODE_RESPONSE         = (Data[3] <   4) ? Data[3] : 0;
-	gEeprom.DTMF_auto_reset_time         = (Data[4] <  61) ? Data[4] : (Data[4] >= 5) ? Data[4] : 10;
+	gEeprom.DTMF_DECODE_RESPONSE         = (Data[3] < 4) ? Data[3] : 0;
+	gEeprom.DTMF_auto_reset_time         = (Data[4] < 61 && Data[4] >= 5) ? Data[4] : 10;
 #endif
 	gEeprom.DTMF_PRELOAD_TIME            = (Data[5] < 101) ? Data[5] * 10 : 300;
 	gEeprom.DTMF_FIRST_CODE_PERSIST_TIME = (Data[6] < 101) ? Data[6] * 10 : 100;
@@ -264,9 +238,7 @@ void SETTINGS_InitEEPROM(void)
 	gSetting_200TX             = (Data[3] < 2) ? Data[3] : false;
 	gSetting_500TX             = (Data[4] < 2) ? Data[4] : false;
 	gSetting_350EN             = (Data[5] < 2) ? Data[5] : true;
-
 	gSetting_ScrambleEnable    = (Data[6] < 2) ? Data[6] : true;
-
 	//gSetting_TX_EN             = (Data[7] & (1u << 0)) ? true : false;
 	gSetting_live_DTMF_decoder = !!(Data[7] & (1u << 1));
 	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3 : 2;
@@ -497,30 +469,17 @@ void SETTINGS_SaveVfoIndices(void)
 
 void SETTINGS_SaveSettings(void)
 {
-
-	#ifdef ENABLE_PMR_MODE
-		if ( gPMR_Mode_Active ) {
-			return;
-		}
-	#endif
-
 	uint8_t  State[8];
 	uint32_t Password[2];
 
 	State[0] = gEeprom.CHAN_1_CALL;
 	State[1] = gEeprom.SQUELCH_LEVEL;
 	State[2] = gEeprom.TX_TIMEOUT_TIMER;
-
 	#ifdef ENABLE_NOAA
 		State[3] = gEeprom.NOAA_AUTO_SCAN;
 	#else
-		#ifdef ENABLE_PMR_MODE			
-			State[3] = (gPMR_Mode_Active << 7);
-		#else
-			State[3] = false;
-		#endif
+		State[3] = false;
 	#endif
-
 	State[4] = gEeprom.KEY_LOCK;
 	#ifdef ENABLE_VOX
 		State[5] = gEeprom.VOX_SWITCH;
@@ -538,15 +497,8 @@ void SETTINGS_SaveSettings(void)
 	State[3] = gEeprom.BATTERY_SAVE;
 	State[4] = gEeprom.DUAL_WATCH;
 	State[5] = gEeprom.BACKLIGHT_TIME;
-	//State[6] = gEeprom.TAIL_TONE_ELIMINATION;
+	State[6] = gEeprom.TAIL_TONE_ELIMINATION;
 	State[7] = gEeprom.VFO_OPEN;
-
-#ifdef ENABLE_CONTRAST
-	State[6] = (gEeprom.LCD_CONTRAST & 0x7F) | (gEeprom.TAIL_TONE_ELIMINATION << 7);
-#else
-	State[6] = (gEeprom.TAIL_TONE_ELIMINATION << 7);
-#endif
-
 	EEPROM_WriteBuffer(0x0E78, State);
 
 	State[0] = gEeprom.BEEP_CONTROL;
