@@ -23,7 +23,7 @@ enum {
 
 enum { 
 	MAX_MSG_STORED = 24,
-    DISPLAY_MSG_COUNT = 6
+    DISPLAY_MSG_COUNT = 5
 };
 //const uint8_t TX_MSG_LENGTH = 30;
 //const uint8_t MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 2;

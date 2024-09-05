@@ -38,7 +38,7 @@ void UI_DisplayMSG(void) {
 
 	memset(String, 0, sizeof(String));
 
-	uint8_t mPos = 1;
+	uint8_t mPos = 8;
 	const uint8_t mLine = 7;
 
     for (int i = 0; i < DISPLAY_MSG_COUNT; ++i) {
@@ -77,7 +77,7 @@ void UI_DisplayMSG(void) {
 		strcpy(String, "b");
 	}
 
-	UI_DrawRectangleBuffer(gFrameBuffer, 119, 40, 125, 48, true);
+	UI_DrawRectangleBuffer(gFrameBuffer, 119, 41, 125, 47, true);
 	GUI_DisplaySmallest(String, 121, 42, false, true);
 	#ifdef ENABLE_DOCK
 		UART_SendUiElement(121, 42, (32 / 6), 4, strlen(String), String);
