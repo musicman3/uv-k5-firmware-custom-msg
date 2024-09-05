@@ -8,25 +8,28 @@
 #include <string.h>
 #include "driver/keyboard.h"
 
-typedef enum KeyboardType {
+typedef enum KeyboardType
+{
 	UPPERCASE,
-  	LOWERCASE,
-  	NUMERIC,
-  	END_TYPE_KBRD
+	LOWERCASE,
+	NUMERIC,
+	END_TYPE_KBRD
 } KeyboardType;
 
-enum { 
+enum
+{
 	TX_MSG_LENGTH = 29,
 	MSG_HEADER_LENGTH = 20,
 	MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 3
 };
 
-enum { 
+enum
+{
 	MAX_MSG_STORED = 24,
-    DISPLAY_MSG_COUNT = 5
+	DISPLAY_MSG_COUNT = 5
 };
-//const uint8_t TX_MSG_LENGTH = 30;
-//const uint8_t MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 2;
+// const uint8_t TX_MSG_LENGTH = 30;
+// const uint8_t MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 2;
 
 extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;

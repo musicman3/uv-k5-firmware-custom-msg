@@ -14,25 +14,26 @@
 #include "ui/inputbox.h"
 #include "ui/ui.h"
 #ifdef ENABLE_DOCK
-	#include "app/uart.h"
+#include "app/uart.h"
 #endif
 
-void UI_DisplayMSG(void) {
+void UI_DisplayMSG(void)
+{
 
 	static char String[37];
 
 	UI_DisplayClear();
-		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-	{	// tell user how to unlock the keyboard
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+	{ // tell user how to unlock the keyboard
 		UI_PrintString("Long press #", 0, LCD_WIDTH, 1, 8);
-		UI_PrintString("to unlock",    0, LCD_WIDTH, 3, 8);
+		UI_PrintString("to unlock", 0, LCD_WIDTH, 3, 8);
 		ST7565_BlitFullScreen();
 		return;
 	}
 	memset(String, 0, sizeof(String));
 
-    strcpy(String, "Messenger");
-    GUI_DisplaySmallest(String, 128-1-36, 2, false, true);
+	strcpy(String, "Messenger");
+	GUI_DisplaySmallest(String, 128 - 1 - 36, 2, false, true);
 
 	// Message Display
 
@@ -41,63 +42,70 @@ void UI_DisplayMSG(void) {
 	uint8_t mPos = 8;
 	const uint8_t mLine = 7;
 
-    for (int i = 0; i < DISPLAY_MSG_COUNT; ++i) {
-		//sprintf(String, "%s", rxMessage[i]);
-        uint8_t currIdx=currDisplayMsgID+(DISPLAY_MSG_COUNT-i-1);
+	for (int i = 0; i < DISPLAY_MSG_COUNT; ++i)
+	{
+		// sprintf(String, "%s", rxMessage[i]);
+		uint8_t currIdx = currDisplayMsgID + (DISPLAY_MSG_COUNT - i - 1);
 		GUI_DisplaySmallest(rxMessage[currIdx], 2, mPos, false, true);
-		#ifdef ENABLE_DOCK
-			UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[currIdx]), rxMessage[currIdx]);
-		#endif
+#ifdef ENABLE_DOCK
+		UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[currIdx]), rxMessage[currIdx]);
+#endif
 		mPos += mLine;
-    }
+	}
 
-    // Scroll Indicator
-    if (canScrollUp) {
-        char str[] = ""; // ASCII 128
-        GUI_DisplaySmallest(str+1, 5, 1, false, true); // Low byte only
-    }
-    if (canScrollDown) {
-        char str[] = ""; // ASCII 129
-        GUI_DisplaySmallest(str+1, 5, 3, false, true); // Low byte only
-    }
+	// Scroll Indicator
+	if (canScrollUp)
+	{
+		char str[] = "";								 // ASCII 128
+		GUI_DisplaySmallest(str + 1, 5, 1, false, true); // Low byte only
+	}
+	if (canScrollDown)
+	{
+		char str[] = "";								 // ASCII 129
+		GUI_DisplaySmallest(str + 1, 5, 3, false, true); // Low byte only
+	}
 
-    // Input box
-    memset(String, 0, sizeof(String));
-    strcpy(String, "Input");
-    UI_DrawDottedLineBuffer(gFrameBuffer, 2, 44, 94, 44, true, 2);
-    GUI_DisplaySmallest(String, 98, 42, false, true);
-    
+	// Input box
+	memset(String, 0, sizeof(String));
+	strcpy(String, "Input");
+	UI_DrawDottedLineBuffer(gFrameBuffer, 2, 44, 94, 44, true, 2);
+	GUI_DisplaySmallest(String, 98, 42, false, true);
 
 	memset(String, 0, sizeof(String));
-	if ( keyboardType == NUMERIC ) {
+	if (keyboardType == NUMERIC)
+	{
 		strcpy(String, "2");
-	} else if ( keyboardType == UPPERCASE ) {
+	}
+	else if (keyboardType == UPPERCASE)
+	{
 		strcpy(String, "B");
-	} else {
+	}
+	else
+	{
 		strcpy(String, "b");
 	}
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 119, 41, 125, 47, true);
 	GUI_DisplaySmallest(String, 121, 42, false, true);
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(121, 42, (32 / 6), 4, strlen(String), String);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(121, 42, (32 / 6), 4, strlen(String), String);
+#endif
 
-    // Char bar
+	// Char bar
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);
-	//UI_PrintStringSmall(String, 3, 0, 6);
+	// UI_PrintStringSmall(String, 3, 0, 6);
 	GUI_DisplaySmallest(String, 2, 48, false, true);
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(2, 2, (38 / 6), 4, strlen(String), String);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(2, 2, (38 / 6), 4, strlen(String), String);
+#endif
 
-    // Debug Msgs 1
-    // memset(String, 0, sizeof(String));
+	// Debug Msgs 1
+	// memset(String, 0, sizeof(String));
 	// sprintf(String, "Did:%u", currDisplayMsgID);
 	// GUI_DisplaySmallest(String, 64, 24, false, true);
 
-    // memset(String, 0, sizeof(String));
+	// memset(String, 0, sizeof(String));
 	// sprintf(String, "Rx:%u", totalMsgsReceived);
 	// GUI_DisplaySmallest(String, 64, 31, false, true);
 
@@ -106,7 +114,6 @@ void UI_DisplayMSG(void) {
 	// sprintf(String, "S:%u", gErrorsDuringMSG);
 	// GUI_DisplaySmallest(String, 4, 12, false, true);
 
-    
 	// memset(String, 0, sizeof(String));
 	// for (uint8_t i = 0; i < 19; i++) {
 	// 	sprintf(&String[i*2], "%02X", rxMessage[i]);

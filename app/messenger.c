@@ -21,7 +21,8 @@
 #include "driver/uart.h"
 #endif
 
-typedef enum MsgStatus {
+typedef enum MsgStatus
+{
     READY,
     SENDING,
     RECEIVING,
@@ -66,7 +67,8 @@ bool canScrollDown = false;
 
 // -----------------------------------------------------
 
-void MSG_FSKSendData() {
+void MSG_FSKSendData()
+{
 
     uint16_t fsk_reg59;
 
@@ -83,7 +85,8 @@ void MSG_FSKSendData() {
     // UART_printf("\n BANDWIDTH : 0x%.4X", dev_val);
     {
         uint16_t deviation = 850;
-        switch (gEeprom.VfoInfo[gEeprom.TX_VFO].CHANNEL_BANDWIDTH) {
+        switch (gEeprom.VfoInfo[gEeprom.TX_VFO].CHANNEL_BANDWIDTH)
+        {
         case BK4819_FILTER_BW_WIDE:
             deviation = 1050;
             break;
@@ -276,7 +279,8 @@ void MSG_FSKSendData() {
 
     { // load the entire packet data into the TX FIFO buffer
         const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH);
-        for (size_t i = 0, j = 0; i < len_buff; i += 2, j++) {
+        for (size_t i = 0, j = 0; i < len_buff; i += 2, j++)
+        {
             BK4819_WriteRegister(BK4819_REG_5F, (msgFSKBuffer[i + 1] << 8) | msgFSKBuffer[i]);
         }
     }
@@ -289,9 +293,11 @@ void MSG_FSKSendData() {
         // if it takes any longer then somethings gone wrong, we shut the TX down
         unsigned int timeout = 1000 / 5;
 
-        while (timeout-- > 0) {
+        while (timeout-- > 0)
+        {
             SYSTEM_DelayMs(5);
-            if (BK4819_ReadRegister(BK4819_REG_0C) & (1u << 0)) { // we have interrupt flags
+            if (BK4819_ReadRegister(BK4819_REG_0C) & (1u << 0))
+            { // we have interrupt flags
                 BK4819_WriteRegister(BK4819_REG_02, 0);
                 if (BK4819_ReadRegister(BK4819_REG_02) & BK4819_REG_02_FSK_TX_FINISHED)
                     timeout = 0; // TX is complete
@@ -315,9 +321,11 @@ void MSG_FSKSendData() {
     BK4819_WriteRegister(BK4819_REG_51, css_val);
 }
 
-void MSG_EnableRX(const bool enable) {
+void MSG_EnableRX(const bool enable)
+{
 
-    if (enable) {
+    if (enable)
+    {
         // REG_70
         //
         // <15>    0 TONE-1
@@ -524,8 +532,9 @@ void MSG_EnableRX(const bool enable) {
         BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
 
         BK4819_WriteRegister(BK4819_REG_02, 0);
-
-    } else {
+    }
+    else
+    {
         BK4819_WriteRegister(BK4819_REG_70, 0);
         BK4819_WriteRegister(BK4819_REG_58, 0);
     }
@@ -533,14 +542,17 @@ void MSG_EnableRX(const bool enable) {
 
 // -----------------------------------------------------
 
-void msgScrollStatusUpdate() {
+void msgScrollStatusUpdate()
+{
     canScrollUp = totalMsgsReceived - currDisplayMsgID > DISPLAY_MSG_COUNT;
     canScrollDown = currDisplayMsgID > 0;
 }
 
-void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 3]) {
+void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 3])
+{
 
-    for (int i = MAX_MSG_STORED - 1; i > 0; i--) {
+    for (int i = MAX_MSG_STORED - 1; i > 0; i--)
+    {
         strcpy(rxMessages[i], rxMessages[i - 1]);
     }
     memset(rxMessages[0], 0, sizeof(rxMessages[0]));
@@ -549,12 +561,14 @@ void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 3]) {
     msgScrollStatusUpdate();
 }
 
-void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
+void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage)
+{
 
     if (msgStatus != READY)
         return;
 
-    if (strlen(txMessage) > 0 && (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)) {
+    if (strlen(txMessage) > 0 && (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0))
+    {
 
         msgStatus = SENDING;
 
@@ -579,7 +593,8 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
         msgFSKBuffer[MAX_RX_MSG_LENGTH + 2] = '0';
         msgFSKBuffer[(MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) - 1] = '#';
 
-        if (!bServiceMessage) {
+        if (!bServiceMessage)
+        {
             moveUP(rxMessage);
             sprintf(rxMessage[0], "<: %s", txMessage);
             memset(lastcMessage, 0, sizeof(lastcMessage));
@@ -612,20 +627,24 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
         MSG_EnableRX(true);
 
         msgStatus = READY;
-
-    } else {
+    }
+    else
+    {
         AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
     }
 }
 
-uint8_t validate_char(uint8_t rchar) {
-    if ((rchar == 0x1b) || (rchar >= 32 && rchar <= 127)) {
+uint8_t validate_char(uint8_t rchar)
+{
+    if ((rchar == 0x1b) || (rchar >= 32 && rchar <= 127))
+    {
         return rchar;
     }
     return 32;
 }
 
-void MSG_StorePacket(const uint16_t interrupt_bits) {
+void MSG_StorePacket(const uint16_t interrupt_bits)
+{
 
     // const uint16_t rx_sync_flags   = BK4819_ReadRegister(BK4819_REG_0B);
 
@@ -635,16 +654,19 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 
     // UART_printf("\nMSG : S%i, F%i, E%i | %i", rx_sync, rx_fifo_almost_full, rx_finished, interrupt_bits);
 
-    if (rx_sync) {
+    if (rx_sync)
+    {
         gFSKWriteIndex = 0;
         memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
         msgStatus = RECEIVING;
     }
 
-    if (rx_fifo_almost_full && msgStatus == RECEIVING) {
+    if (rx_fifo_almost_full && msgStatus == RECEIVING)
+    {
 
         const uint16_t count = BK4819_ReadRegister(BK4819_REG_5E) & (7u << 0); // almost full threshold
-        for (uint16_t i = 0; i < count; i++) {
+        for (uint16_t i = 0; i < count; i++)
+        {
             const uint16_t word = BK4819_ReadRegister(BK4819_REG_5F);
             if (gFSKWriteIndex < sizeof(msgFSKBuffer))
                 msgFSKBuffer[gFSKWriteIndex++] = validate_char((word >> 0) & 0xff);
@@ -655,7 +677,8 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
         SYSTEM_DelayMs(10);
     }
 
-    if (rx_finished) {
+    if (rx_finished)
+    {
 
         const uint16_t fsk_reg59 = BK4819_ReadRegister(BK4819_REG_59) & ~((1u << 15) | (1u << 14) | (1u << 12) | (1u << 11));
 
@@ -663,56 +686,69 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
         BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
         msgStatus = READY;
 
-        if (gFSKWriteIndex > 2) {
+        if (gFSKWriteIndex > 2)
+        {
 
             // If there's three 0x1b bytes, then it's a service message
-            if (msgFSKBuffer[2] == 0x1b && msgFSKBuffer[3] == 0x1b && msgFSKBuffer[4] == 0x1b) {
+            if (msgFSKBuffer[2] == 0x1b && msgFSKBuffer[3] == 0x1b && msgFSKBuffer[4] == 0x1b)
+            {
 #ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
                 // If the next 4 bytes are "RCVD", then it's a delivery notification
-                if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D') {
+                if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D')
+                {
                     UART_printf("SVC<RCPT\n");
                     rxMessage[0][1] = '-';
                     gUpdateStatus = true;
                     gUpdateDisplay = true;
                 }
 #endif
-            } else {
+            }
+            else
+            {
                 currDisplayMsgID = 0; // Scroll to the bottom
                 moveUP(rxMessage);
-                if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
+                if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S')
+                {
                     snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "?> Err Rx");
-                } else {
+                }
+                else
+                {
                     snprintf(rxMessage[0], TX_MSG_LENGTH + 3, "-> %s", &msgFSKBuffer[2]);
-                #ifdef ENABLE_MESSENGER_UART
-					UART_printf("SMS%s\n", rxMessage[3]);
-					#endif
-				}	
+#ifdef ENABLE_MESSENGER_UART
+                    UART_printf("SMS%s\n", rxMessage[3]);
+#endif
+                }
 
-                if (gScreenToDisplay != DISPLAY_MSG) {
+                if (gScreenToDisplay != DISPLAY_MSG)
+                {
                     hasNewMessage = 1;
                     gUpdateStatus = true;
                     gUpdateDisplay = true;
 #ifdef ENABLE_MESSENGER_NOTIFICATION
                     gPlayMSGRing = true;
 #endif
-                } else {
+                }
+                else
+                {
                     gUpdateDisplay = true;
                 }
             }
         }
 
         gFSKWriteIndex = 0;
-        #ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION	
+#ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
         // Transmit a message to the sender that we have received the message (Unless it's a service message)
-        if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b) {
+        if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b)
+        {
             SYSTEM_DelayMs(200);
             MSG_Send("\x1b\x1b\x1b<<RCVD>>                  ", true);
         }
-        #endif
+#endif
     }
 }
 
-void MSG_Init() {
+void MSG_Init()
+{
     memset(rxMessage, 0, sizeof(rxMessage));
     memset(cMessage, 0, sizeof(cMessage));
     memset(lastcMessage, 0, sizeof(lastcMessage));
@@ -726,80 +762,114 @@ void MSG_Init() {
 
 // ---------------------------------------------------------------------------------
 
-void insertCharInMessage(uint8_t key) {
-    if (key == KEY_0) {
-        if (keyboardType == NUMERIC) {
+void insertCharInMessage(uint8_t key)
+{
+    if (key == KEY_0)
+    {
+        if (keyboardType == NUMERIC)
+        {
             cMessage[cIndex] = '0';
-        } else {
+        }
+        else
+        {
             cMessage[cIndex] = ' ';
         }
-        if (cIndex < MAX_MSG_LENGTH) {
+        if (cIndex < MAX_MSG_LENGTH)
+        {
             cIndex++;
         }
-    } else if (prevKey == key) {
+    }
+    else if (prevKey == key)
+    {
         cIndex = (cIndex > 0) ? cIndex - 1 : 0;
-        if (keyboardType == NUMERIC) {
+        if (keyboardType == NUMERIC)
+        {
             cMessage[cIndex] = T9TableNum[key - 1][(++prevLetter) % numberOfNumsAssignedToKey[key - 1]];
-        } else if (keyboardType == LOWERCASE) {
+        }
+        else if (keyboardType == LOWERCASE)
+        {
             cMessage[cIndex] = T9TableLow[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
-        } else {
+        }
+        else
+        {
             cMessage[cIndex] = T9TableUp[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
         }
-        if (cIndex < MAX_MSG_LENGTH) {
+        if (cIndex < MAX_MSG_LENGTH)
+        {
             cIndex++;
         }
-    } else {
+    }
+    else
+    {
         prevLetter = 0;
-        if (cIndex >= MAX_MSG_LENGTH) {
+        if (cIndex >= MAX_MSG_LENGTH)
+        {
             cIndex = (cIndex > 0) ? cIndex - 1 : 0;
         }
-        if (keyboardType == NUMERIC) {
+        if (keyboardType == NUMERIC)
+        {
             cMessage[cIndex] = T9TableNum[key - 1][prevLetter];
-        } else if (keyboardType == LOWERCASE) {
+        }
+        else if (keyboardType == LOWERCASE)
+        {
             cMessage[cIndex] = T9TableLow[key - 1][prevLetter];
-        } else {
+        }
+        else
+        {
             cMessage[cIndex] = T9TableUp[key - 1][prevLetter];
         }
-        if (cIndex < MAX_MSG_LENGTH) {
+        if (cIndex < MAX_MSG_LENGTH)
+        {
             cIndex++;
         }
     }
     cMessage[cIndex] = '\0';
-    if (keyboardType == NUMERIC) {
+    if (keyboardType == NUMERIC)
+    {
         prevKey = 0;
         prevLetter = 0;
-    } else {
+    }
+    else
+    {
         prevKey = key;
     }
 }
 
-void processBackspace() {
+void processBackspace()
+{
     cIndex = (cIndex > 0) ? cIndex - 1 : 0;
     cMessage[cIndex] = '\0';
     prevKey = 0;
     prevLetter = 0;
 }
 
-void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
+void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
+{
 
-    if (bKeyPressed && bKeyHeld) {
-		switch (Key)
-		{
-			case KEY_F:
-				if (gEeprom.KEY_LOCK && gKeypadLocked > 0) {
-		 			COMMON_KeypadLockToggle();
-				} else {
-					MSG_Init();
-				}
-				break;
-			default:
-				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-				break;
-		}
+    if (bKeyPressed && bKeyHeld)
+    {
+        switch (Key)
+        {
+        case KEY_F:
+            if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+            {
+                COMMON_KeypadLockToggle();
+            }
+            else
+            {
+                MSG_Init();
+            }
+            break;
+        default:
+            AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+            break;
+        }
+    }
+    else if (bKeyPressed && !bKeyHeld)
+    {
 
-	} else if (bKeyPressed && !bKeyHeld) {
-
-        switch (Key) {
+        switch (Key)
+        {
         case KEY_0:
         case KEY_1:
         case KEY_2:
@@ -810,7 +880,8 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
         case KEY_7:
         case KEY_8:
         case KEY_9:
-            if (keyTickCounter > NEXT_CHAR_DELAY) {
+            if (keyTickCounter > NEXT_CHAR_DELAY)
+            {
                 prevKey = 0;
                 prevLetter = 0;
             }
@@ -830,13 +901,16 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
             break;
         case KEY_DOWN:
             currDisplayMsgID = (currDisplayMsgID > 0) ? currDisplayMsgID - 1 : 0;
-           if (currDisplayMsgID > 0){
-            msgScrollStatusUpdate();
-            gUpdateDisplay = true;
-            } else { // display last message in input field
+            if (currDisplayMsgID > 0)
+            {
+                msgScrollStatusUpdate();
+                gUpdateDisplay = true;
+            }
+            else
+            { // display last message in input field
                 memset(cMessage, 0, sizeof(cMessage));
-				memcpy(cMessage, lastcMessage, TX_MSG_LENGTH);
-				cIndex = strlen(cMessage);
+                memcpy(cMessage, lastcMessage, TX_MSG_LENGTH);
+                cIndex = strlen(cMessage);
             }
             break;
         case KEY_MENU:
@@ -852,7 +926,6 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
             AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
             break;
         }
-
     }
 }
 
