@@ -741,7 +741,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits)
         if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b)
         {
             SYSTEM_DelayMs(200);
-            MSG_Send("\x1b\x1b\x1b<<RCVD>>                  ", true);
+            MSG_Send("\x1b <<RCVD>>\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", true);
         }
 #endif
     }
