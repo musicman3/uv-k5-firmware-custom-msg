@@ -830,8 +830,14 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
             break;
         case KEY_DOWN:
             currDisplayMsgID = (currDisplayMsgID > 0) ? currDisplayMsgID - 1 : 0;
+           if (currDisplayMsgID > 0){
             msgScrollStatusUpdate();
             gUpdateDisplay = true;
+            } else { // display last message in input field
+                memset(cMessage, 0, sizeof(cMessage));
+				memcpy(cMessage, lastcMessage, TX_MSG_LENGTH);
+				cIndex = strlen(cMessage);
+            }
             break;
         case KEY_MENU:
         case KEY_PTT:

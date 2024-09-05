@@ -72,8 +72,8 @@ ENABLE_SCREEN_DUMP			  ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= NetherEarth
-VERSION_STRING ?= V1.0
-PROJECT_NAME := nether_earth_V1.0
+VERSION_STRING ?= V1.01
+PROJECT_NAME := nether_earth_V1.01
 
 BUILD := _build
 BIN := compiled-firmware
