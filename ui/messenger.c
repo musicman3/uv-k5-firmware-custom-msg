@@ -54,11 +54,11 @@ void UI_DisplayMSG(void) {
     // Scroll Indicator
     if (canScrollUp) {
         char str[] = ""; // ASCII 128
-        GUI_DisplaySmallest(str+1, 120, 19, false, true); // Low byte only
+        GUI_DisplaySmallest(str+1, 5, 1, false, true); // Low byte only
     }
     if (canScrollDown) {
         char str[] = ""; // ASCII 129
-        GUI_DisplaySmallest(str+1, 120, 22, false, true); // Low byte only
+        GUI_DisplaySmallest(str+1, 5, 3, false, true); // Low byte only
     }
 
     // Input box
