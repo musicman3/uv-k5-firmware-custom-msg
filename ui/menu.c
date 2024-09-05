@@ -51,7 +51,7 @@ const t_menu_item MenuList[] =
 	{"TxODir", VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
 	{"TxOffs", VOICE_ID_TX_OFFSET_FREQUENCY,           MENU_OFFSET        }, // was "OFFSET"
 	{"W/N", VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
-	{"SCRMB", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
+	{"Scrmb", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
 	{"BusyCL", VOICE_ID_BUSY_LOCKOUT,                  MENU_BCL           }, // was "BCL"
 	{"Compnd", VOICE_ID_INVALID,                       MENU_COMPAND       },
 	{"Demod", VOICE_ID_INVALID,                       MENU_AM            }, // was "AM"
@@ -190,17 +190,17 @@ const char gSubMenu_SAVE[][4] =
 
 const char gSubMenu_TOT[][7] =
 {
-	"30 s",
-	"1 m",
-	"2 m",
-	"3 m",
-	"4 m",
-	"5 m",
-	"6 m",
-	"7 m",
-	"8 m",
-	"9 m",
-	"15 m"
+	"30s",
+	"1m",
+	"2m",
+	"3m",
+	"4m",
+	"5m",
+	"6m",
+	"7m",
+	"8m",
+	"9m",
+	"15m"
 };
 
 const char gSubMenu_RXMode[][17] =
@@ -279,7 +279,7 @@ const char gSubMenu_ROGER[][11] =
 	"MOTO T40",
 	"MOTO T80",
 	"C.AM845",
-	"POLIZIA"
+	"POLICE"
 	//"MDC"
 };
 
@@ -304,12 +304,12 @@ const char gSubMenu_F_LOCK[][27] =
 const char gSubMenu_BACKLIGHT[][7] =
 {
 	"OFF",
-	"5 s",
-	"10 s",
-	"20 s",
-	"1 m",
-	"2 m",
-	"4 m",
+	"5s",
+	"10s",
+	"20s",
+	"1m",
+	"2m",
+	"4m",
 	"ON"
 };
 
@@ -330,23 +330,23 @@ const char gSubMenu_BAT_TXT[][8] =
 
 const char gSubMenu_BATTYP[][9] =
 {
-	"1600mAh",
-	"2200mAh"
+	"1.6Ah",
+	"2.2Ah"
 };
 
 const char gSubMenu_SCRAMBLER[][7] =
 {
 	"OFF",
-	"2600Hz",
-	"2700Hz",
-	"2800Hz",
-	"2900Hz",
-	"3000Hz",
-	"3100Hz",
-	"3200Hz",
-	"3300Hz",
-	"3400Hz",
-	"3500Hz"
+	"2.6kHz",
+	"2.7kHz",
+	"2.8kHz",
+	"2.9kHz",
+	"3kHz",
+	"3.1kHz",
+	"3.2kHz",
+	"3.3kHz",
+	"3.4kHz",
+	"3.5kHz"
 };
 
 const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =

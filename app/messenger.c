@@ -857,7 +857,8 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
             }
             else
             {
-                MSG_Init();
+                memset(cMessage, 0, sizeof(cMessage));
+                cIndex = strlen(cMessage);
             }
             break;
         default:
