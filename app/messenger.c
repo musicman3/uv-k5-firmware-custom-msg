@@ -7,6 +7,7 @@
 #include "driver/keyboard.h"
 #include "driver/st7565.h"
 #include "driver/system.h"
+#include "driver/aes.h"
 #include "external/printf/printf.h"
 #include "frequencies.h"
 #include "functions.h"
@@ -741,7 +742,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits)
         if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b)
         {
             SYSTEM_DelayMs(200);
-            MSG_Send("\x1b <<RCVD>>\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", true);
+            MSG_Send("\x1b\x1b\x1bRCVD\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", true);
         }
 #endif
     }
@@ -916,6 +917,9 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
             break;
         case KEY_MENU:
         case KEY_PTT:
+
+        UART_printf("SMS%s\n", rxMessage[3]);
+
             // Send message
             MSG_Send(cMessage, false);
             break;
