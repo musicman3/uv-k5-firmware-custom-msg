@@ -697,7 +697,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits)
                 // If the next 4 bytes are "RCVD", then it's a delivery notification
                 if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D')
                 {
-                    UART_printf("SVC<RCPT\n");
+                    //UART_printf("SVC<RCPT\n");
                     rxMessage[0][1] = '-';
                     gUpdateStatus = true;
                     gUpdateDisplay = true;
@@ -918,7 +918,7 @@ void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
         case KEY_MENU:
         case KEY_PTT:
 
-        UART_printf("SMS%s\n", rxMessage[3]);
+        //UART_printf("SMS%s\n", rxMessage[3]);
 
             // Send message
             MSG_Send(cMessage, false);
